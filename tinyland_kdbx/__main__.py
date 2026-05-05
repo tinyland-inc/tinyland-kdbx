@@ -1,4 +1,5 @@
 """Allow running as python -m tinyland_kdbx."""
+
 import sys
 
 from tinyland_kdbx.cli import main

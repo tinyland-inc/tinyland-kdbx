@@ -10,7 +10,6 @@ keepassxc-cli subprocess calls. It handles:
 
 import os
 from pathlib import Path
-from typing import Optional
 
 from pykeepass import PyKeePass
 from pykeepass.exceptions import CredentialsError
@@ -33,9 +32,9 @@ class EntryNotFoundError(KDBXError):
 
 
 def open_database(
-    database_path: Optional[str] = None,
-    password: Optional[str] = None,
-    keyfile: Optional[str] = None,
+    database_path: str | None = None,
+    password: str | None = None,
+    keyfile: str | None = None,
 ) -> PyKeePass:
     """Open a KeePassXC database.
 
@@ -60,9 +59,7 @@ def open_database(
         password = os.environ.get("KEEPASS_PASSWORD")
 
     if not database_path:
-        raise KDBXError(
-            "No database path provided. Set KEEPASS_DATABASE_PATH or pass database_path."
-        )
+        raise KDBXError("No database path provided. Set KEEPASS_DATABASE_PATH or pass database_path.")
 
     db_path = Path(database_path).expanduser().resolve()
     if not db_path.is_file():
@@ -72,9 +69,7 @@ def open_database(
         return PyKeePass(str(db_path), password=password, keyfile=keyfile)
     except CredentialsError:
         # Intentionally vague -- do NOT leak password or pykeepass internals
-        raise AuthenticationError(
-            "Failed to open database (wrong password or corrupted file?)"
-        )
+        raise AuthenticationError("Failed to open database (wrong password or corrupted file?)")
     except Exception as exc:
         raise KDBXError(f"Failed to open database: {exc}") from exc
 
@@ -115,29 +110,28 @@ def _find_entry(kp: PyKeePass, entry_path: str):
     return None
 
 
-def _get_entry_attribute(entry, attr: str) -> Optional[str]:
+def _get_entry_attribute(entry, attr: str) -> str | None:
     """Return the requested attribute from a pykeepass Entry."""
     attr_lower = attr.lower()
     if attr_lower == "password":
         return entry.password
-    elif attr_lower == "username":
+    if attr_lower == "username":
         return entry.username
-    elif attr_lower == "url":
+    if attr_lower == "url":
         return entry.url
-    elif attr_lower == "notes":
+    if attr_lower == "notes":
         return entry.notes
-    elif attr_lower == "title":
+    if attr_lower == "title":
         return entry.title
-    else:
-        # Try custom string field
-        return entry.get_custom_property(attr)
+    # Try custom string field
+    return entry.get_custom_property(attr)
 
 
 def get_entry(
     entry_path: str,
-    database_path: Optional[str] = None,
-    password: Optional[str] = None,
-    keyfile: Optional[str] = None,
+    database_path: str | None = None,
+    password: str | None = None,
+    keyfile: str | None = None,
     attribute: str = "password",
 ) -> str:
     """Retrieve a single entry's attribute from the database.
@@ -169,16 +163,14 @@ def get_entry(
 
     value = _get_entry_attribute(entry, attribute)
     if value is None:
-        raise EntryNotFoundError(
-            f"Attribute '{attribute}' not found on entry '{entry_path}'"
-        )
+        raise EntryNotFoundError(f"Attribute '{attribute}' not found on entry '{entry_path}'")
     return value
 
 
 def list_entries(
-    database_path: Optional[str] = None,
-    password: Optional[str] = None,
-    keyfile: Optional[str] = None,
+    database_path: str | None = None,
+    password: str | None = None,
+    keyfile: str | None = None,
 ) -> list[str]:
     """List all entry paths in the database.
 
