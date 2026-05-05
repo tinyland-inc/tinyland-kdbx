@@ -19,7 +19,6 @@ from tinyland_kdbx.cli import (
     main,
 )
 
-
 # ---------------------------------------------------------------------------
 # Parser construction tests
 # ---------------------------------------------------------------------------
@@ -45,16 +44,12 @@ class TestParser:
 
     def test_get_with_password_b58(self):
         parser = build_parser()
-        args = parser.parse_args(
-            ["get", "db.kdbx", "entry", "--password-b58", "abc123"]
-        )
+        args = parser.parse_args(["get", "db.kdbx", "entry", "--password-b58", "abc123"])
         assert args.password_b58 == "abc123"
 
     def test_get_with_password_env(self):
         parser = build_parser()
-        args = parser.parse_args(
-            ["get", "db.kdbx", "entry", "--password-env", "MY_PW"]
-        )
+        args = parser.parse_args(["get", "db.kdbx", "entry", "--password-env", "MY_PW"])
         assert args.password_env == "MY_PW"
 
     def test_list_minimal(self):
@@ -87,9 +82,7 @@ class TestParser:
 
     def test_sudo_pipe_with_password_env(self):
         parser = build_parser()
-        args = parser.parse_args(
-            ["sudo-pipe", "db.kdbx", "entry", "--password-env", "MY_PASS"]
-        )
+        args = parser.parse_args(["sudo-pipe", "db.kdbx", "entry", "--password-env", "MY_PASS"])
         assert args.password_env == "MY_PASS"
 
     def test_no_subcommand_raises(self):
@@ -107,7 +100,7 @@ class TestParser:
             main(["--version"])
         assert exc_info.value.code == 0
         captured = capsys.readouterr()
-        assert "0.1.0" in captured.out
+        assert "0.2.0" in captured.out
 
 
 # ---------------------------------------------------------------------------
@@ -122,9 +115,11 @@ class TestEncodeB58Subcommand:
         parser = build_parser()
         args = parser.parse_args(["encode-b58"])
 
-        with mock.patch("sys.stdin", new=io.TextIOWrapper(io.BytesIO(b"hello"))):
-            with mock.patch("sys.stdout", new_callable=io.StringIO) as mock_out:
-                rc = cmd_encode_b58(args)
+        with (
+            mock.patch("sys.stdin", new=io.TextIOWrapper(io.BytesIO(b"hello"))),
+            mock.patch("sys.stdout", new_callable=io.StringIO) as mock_out,
+        ):
+            rc = cmd_encode_b58(args)
 
         assert rc == 0
         assert mock_out.getvalue() == b58encode(b"hello")
@@ -133,9 +128,11 @@ class TestEncodeB58Subcommand:
         parser = build_parser()
         args = parser.parse_args(["encode-b58"])
 
-        with mock.patch("sys.stdin", new=io.TextIOWrapper(io.BytesIO(b""))):
-            with mock.patch("sys.stdout", new_callable=io.StringIO) as mock_out:
-                rc = cmd_encode_b58(args)
+        with (
+            mock.patch("sys.stdin", new=io.TextIOWrapper(io.BytesIO(b""))),
+            mock.patch("sys.stdout", new_callable=io.StringIO) as mock_out,
+        ):
+            rc = cmd_encode_b58(args)
 
         assert rc == 0
         assert mock_out.getvalue() == ""
@@ -145,17 +142,21 @@ class TestEncodeB58Subcommand:
         args = parser.parse_args(["encode-b58"])
         data = bytes(range(256))
 
-        with mock.patch("sys.stdin", new=io.TextIOWrapper(io.BytesIO(data))):
-            with mock.patch("sys.stdout", new_callable=io.StringIO) as mock_out:
-                rc = cmd_encode_b58(args)
+        with (
+            mock.patch("sys.stdin", new=io.TextIOWrapper(io.BytesIO(data))),
+            mock.patch("sys.stdout", new_callable=io.StringIO) as mock_out,
+        ):
+            rc = cmd_encode_b58(args)
 
         assert rc == 0
         assert mock_out.getvalue() == b58encode(data)
 
     def test_encode_via_main(self):
-        with mock.patch("sys.stdin", new=io.TextIOWrapper(io.BytesIO(b"test"))):
-            with mock.patch("sys.stdout", new_callable=io.StringIO) as mock_out:
-                rc = main(["encode-b58"])
+        with (
+            mock.patch("sys.stdin", new=io.TextIOWrapper(io.BytesIO(b"test"))),
+            mock.patch("sys.stdout", new_callable=io.StringIO) as mock_out,
+        ):
+            rc = main(["encode-b58"])
 
         assert rc == 0
         assert mock_out.getvalue() == b58encode(b"test")
@@ -174,10 +175,12 @@ class TestDecodeB58Subcommand:
         args = parser.parse_args(["decode-b58"])
         encoded = b58encode_str("hello")
 
-        with mock.patch("sys.stdin", new=io.StringIO(encoded + "\n")):
-            with mock.patch("sys.stdout", new=mock.MagicMock()) as mock_out:
-                mock_out.buffer = io.BytesIO()
-                rc = cmd_decode_b58(args)
+        with (
+            mock.patch("sys.stdin", new=io.StringIO(encoded + "\n")),
+            mock.patch("sys.stdout", new=mock.MagicMock()) as mock_out,
+        ):
+            mock_out.buffer = io.BytesIO()
+            rc = cmd_decode_b58(args)
 
         assert rc == 0
         mock_out.buffer.seek(0)
@@ -198,10 +201,12 @@ class TestDecodeB58Subcommand:
         args = parser.parse_args(["decode-b58"])
         encoded = b58encode_str("data")
 
-        with mock.patch("sys.stdin", new=io.StringIO(f"  {encoded}  \n\n")):
-            with mock.patch("sys.stdout", new=mock.MagicMock()) as mock_out:
-                mock_out.buffer = io.BytesIO()
-                rc = cmd_decode_b58(args)
+        with (
+            mock.patch("sys.stdin", new=io.StringIO(f"  {encoded}  \n\n")),
+            mock.patch("sys.stdout", new=mock.MagicMock()) as mock_out,
+        ):
+            mock_out.buffer = io.BytesIO()
+            rc = cmd_decode_b58(args)
 
         assert rc == 0
         mock_out.buffer.seek(0)
@@ -229,9 +234,7 @@ class TestPasswordResolution:
 
     def test_password_from_env(self):
         parser = build_parser()
-        args = parser.parse_args(
-            ["get", "db.kdbx", "entry", "--password-env", "TEST_KDBX_PW"]
-        )
+        args = parser.parse_args(["get", "db.kdbx", "entry", "--password-env", "TEST_KDBX_PW"])
         with mock.patch.dict("os.environ", {"TEST_KDBX_PW": "secret123"}):
             pw = _resolve_password(args)
         assert pw == "secret123"
@@ -247,9 +250,7 @@ class TestPasswordResolution:
     def test_password_from_b58(self):
         encoded_pw = b58encode_str("my-secret")
         parser = build_parser()
-        args = parser.parse_args(
-            ["get", "db.kdbx", "entry", "--password-b58", encoded_pw]
-        )
+        args = parser.parse_args(["get", "db.kdbx", "entry", "--password-b58", encoded_pw])
         pw = _resolve_password(args)
         assert pw == "my-secret"
 
@@ -258,28 +259,24 @@ class TestPasswordResolution:
         encoded_pw = b58encode_str("b58-password")
         monkeypatch.setenv("KEEPASS_PASSWORD", "env-password")
         parser = build_parser()
-        args = parser.parse_args(
-            ["get", "db.kdbx", "entry", "--password-b58", encoded_pw]
-        )
+        args = parser.parse_args(["get", "db.kdbx", "entry", "--password-b58", encoded_pw])
         pw = _resolve_password(args)
         assert pw == "b58-password"
 
     def test_missing_env_exits(self):
         parser = build_parser()
-        args = parser.parse_args(
-            ["get", "db.kdbx", "entry", "--password-env", "NONEXISTENT_VAR_XYZ"]
-        )
+        args = parser.parse_args(["get", "db.kdbx", "entry", "--password-env", "NONEXISTENT_VAR_XYZ"])
         env = {k: v for k, v in os.environ.items() if k != "NONEXISTENT_VAR_XYZ"}
-        with mock.patch.dict("os.environ", env, clear=True):
-            with pytest.raises(SystemExit) as exc_info:
-                _resolve_password(args)
+        with (
+            mock.patch.dict("os.environ", env, clear=True),
+            pytest.raises(SystemExit) as exc_info,
+        ):
+            _resolve_password(args)
         assert exc_info.value.code == 3
 
     def test_bad_b58_password_exits(self):
         parser = build_parser()
-        args = parser.parse_args(
-            ["get", "db.kdbx", "entry", "--password-b58", "0OIl"]
-        )
+        args = parser.parse_args(["get", "db.kdbx", "entry", "--password-b58", "0OIl"])
         with pytest.raises(SystemExit) as exc_info:
             _resolve_password(args)
         assert exc_info.value.code == 3
@@ -307,13 +304,15 @@ class TestDatabaseErrors:
             main(["get", "/nonexistent/path.kdbx", "test/path"])
         assert exc_info.value.code == 3
 
-    def test_list_missing_database(self, capsys, monkeypatch):
+    @pytest.mark.usefixtures("capsys")
+    def test_list_missing_database(self, monkeypatch):
         monkeypatch.setenv("KEEPASS_PASSWORD", "test")
         with pytest.raises(SystemExit) as exc_info:
             main(["list", "/nonexistent/path.kdbx"])
         assert exc_info.value.code == 2
 
-    def test_sudo_pipe_missing_database(self, capsys, monkeypatch):
+    @pytest.mark.usefixtures("capsys")
+    def test_sudo_pipe_missing_database(self, monkeypatch):
         monkeypatch.setenv("KEEPASS_PASSWORD", "test")
         with pytest.raises(SystemExit) as exc_info:
             main(["sudo-pipe", "/nonexistent/path.kdbx", "entry"])
@@ -329,9 +328,11 @@ class TestMainDispatch:
     """Verify that main() correctly dispatches to subcommand handlers."""
 
     def test_encode_via_main(self):
-        with mock.patch("sys.stdin", new=io.TextIOWrapper(io.BytesIO(b"test"))):
-            with mock.patch("sys.stdout", new_callable=io.StringIO) as mock_out:
-                rc = main(["encode-b58"])
+        with (
+            mock.patch("sys.stdin", new=io.TextIOWrapper(io.BytesIO(b"test"))),
+            mock.patch("sys.stdout", new_callable=io.StringIO) as mock_out,
+        ):
+            rc = main(["encode-b58"])
 
         assert rc == 0
         assert mock_out.getvalue() == b58encode(b"test")
@@ -339,15 +340,17 @@ class TestMainDispatch:
     def test_missing_env_var_exits_3(self):
         """get subcommand should exit 3 when the password env var is unset."""
         env = {k: v for k, v in os.environ.items() if k != "KEEPASS_PASSWORD"}
-        with mock.patch.dict("os.environ", env, clear=True):
-            with pytest.raises(SystemExit) as exc_info:
-                main(
-                    [
-                        "get",
-                        "/tmp/fake.kdbx",
-                        "some/entry",
-                        "--password-env",
-                        "KEEPASS_PASSWORD",
-                    ]
-                )
+        with (
+            mock.patch.dict("os.environ", env, clear=True),
+            pytest.raises(SystemExit) as exc_info,
+        ):
+            main(
+                [
+                    "get",
+                    "/tmp/fake.kdbx",
+                    "some/entry",
+                    "--password-env",
+                    "KEEPASS_PASSWORD",
+                ]
+            )
         assert exc_info.value.code == 3

@@ -10,7 +10,6 @@ from tinyland_kdbx.base58 import (
     b58encode_str,
 )
 
-
 # ---------------------------------------------------------------------------
 # Round-trip tests
 # ---------------------------------------------------------------------------
@@ -87,7 +86,7 @@ class TestBase58KnownValues:
     """Test against well-known base58 values."""
 
     @pytest.mark.parametrize(
-        "raw, expected",
+        ("raw", "expected"),
         [
             (b"", ""),
             (b"\x00", "1"),
@@ -101,7 +100,7 @@ class TestBase58KnownValues:
         assert b58encode(raw) == expected
 
     @pytest.mark.parametrize(
-        "encoded, expected",
+        ("encoded", "expected"),
         [
             ("", b""),
             ("1", b"\x00"),
@@ -146,11 +145,11 @@ class TestBase58Errors:
                 b58decode(bad_char)
 
     def test_decode_rejects_space(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Invalid base58 character"):
             b58decode("abc def")
 
     def test_decode_rejects_newline(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Invalid base58 character"):
             b58decode("abc\ndef")
 
     def test_decode_str_bad_utf8(self):

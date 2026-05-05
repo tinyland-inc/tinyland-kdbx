@@ -16,9 +16,8 @@ Exit codes:
 
 import argparse
 import os
-import sys
 from pathlib import Path
-from typing import Optional
+import sys
 
 from tinyland_kdbx.base58 import b58decode, b58decode_str, b58encode
 from tinyland_kdbx.reader import (
@@ -86,9 +85,7 @@ def cmd_get(args) -> int:
 
     value = _get_entry_attribute(entry, args.attr)
     if value is None:
-        print(
-            f"error: attribute '{args.attr}' not found on entry", file=sys.stderr
-        )
+        print(f"error: attribute '{args.attr}' not found on entry", file=sys.stderr)
         return 1
 
     sys.stdout.write(value)
@@ -115,7 +112,7 @@ def cmd_list(args) -> int:
     return 0
 
 
-def cmd_encode_b58(args) -> int:
+def cmd_encode_b58(_args) -> int:
     """Handle the 'encode-b58' subcommand -- reads stdin, writes base58."""
     raw = sys.stdin.buffer.read()
     encoded = b58encode(raw)
@@ -123,7 +120,7 @@ def cmd_encode_b58(args) -> int:
     return 0
 
 
-def cmd_decode_b58(args) -> int:
+def cmd_decode_b58(_args) -> int:
     """Handle the 'decode-b58' subcommand -- reads stdin, writes decoded."""
     encoded = sys.stdin.read().strip()
     if not encoded:
@@ -195,9 +192,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     # -- get --
-    p_get = sub.add_parser(
-        "get", help="Retrieve an entry attribute from a KDBX database"
-    )
+    p_get = sub.add_parser("get", help="Retrieve an entry attribute from a KDBX database")
     _add_db_args(p_get)
     p_get.add_argument(
         "entry_path",
@@ -211,9 +206,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_get.set_defaults(func=cmd_get)
 
     # -- list --
-    p_list = sub.add_parser(
-        "list", help="List all entry paths in a KDBX database"
-    )
+    p_list = sub.add_parser("list", help="List all entry paths in a KDBX database")
     _add_db_args(p_list)
     p_list.set_defaults(func=cmd_list)
 
@@ -231,9 +224,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output entry password to stdout for piping to sudo -S",
     )
     _add_db_args(p_sudo)
-    p_sudo.add_argument(
-        "entry_path", help="Slash-separated entry path"
-    )
+    p_sudo.add_argument("entry_path", help="Slash-separated entry path")
     p_sudo.set_defaults(func=cmd_sudo_pipe)
 
     return parser
